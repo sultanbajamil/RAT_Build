@@ -1,0 +1,13 @@
+{
+  "name": "dashboard-server",
+  "version": "1.0.0",
+  "description": "Relay server and web dashboard for remote client management",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.16.0"
+  }
+}

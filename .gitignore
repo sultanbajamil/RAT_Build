@@ -1,0 +1,16 @@
+﻿**/node_modules/
+**/.next/
+**/bin/
+**/obj/
+*.user
+*.suo
+.vs/
+**/__pycache__/
+**/*.py[cod]
+**/build/
+**/dist/
+**/publish/
+**/publish_small/
+**/*.exe
+.DS_Store
+Thumbs.db

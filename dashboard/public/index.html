@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Monitor Control Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-tower-broadcast logo-icon"></i>
+                    <span>ControlHub</span>
+                </div>
+                <div class="status-indicator-container">
+                    <span id="agent-status" class="status-badge offline">
+                        <span class="pulse-dot"></span>
+                        <span class="status-text">OFFLINE</span>
+                    </span>
+                </div>
+                <div class="target-pc-selector-container" style="margin-top: 16px;">
+                    <label for="target-agent-select" style="font-size: 11px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px; letter-spacing: 0.5px;">TARGET PC</label>
+                    <select id="target-agent-select" class="target-select" disabled>
+                        <option value="">No Active Target</option>
+                    </select>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="dashboard">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Overview</span>
+                </button>
+                <button class="nav-item" data-tab="remote-desktop">
+                    <i class="fa-solid fa-desktop"></i>
+                    <span>Screen Share</span>
+                </button>
+                <button class="nav-item" data-tab="file-manager">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>File Manager</span>
+                </button>
+                <button class="nav-item" data-tab="terminal">
+                    <i class="fa-solid fa-terminal"></i>
+                    <span>Command Console</span>
+                </button>
+                <button class="nav-item" data-tab="settings">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <span class="version">FYP Remote System v1.0</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <h1 id="tab-title">Overview</h1>
+                <div class="header-actions">
+                    <button id="reconnect-btn" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrows-rotate"></i> Reconnect WebSocket
+                    </button>
+                </div>
+            </header>
+
+            <!-- Tab Contents -->
+            <div class="tab-viewport">
+                <!-- 1. Dashboard Tab -->
+                <section id="tab-dashboard" class="tab-pane active">
+                    <div class="metrics-grid">
+                        <div class="card metric-card">
+                            <div class="card-icon"><i class="fa-solid fa-microchip"></i></div>
+                            <div class="card-info">
+                                <h3>Target Status</h3>
+                                <p id="metrics-status" class="value offline-text">Disconnected</p>
+                            </div>
+                        </div>
+                        <div class="card metric-card">
+                            <div class="card-icon"><i class="fa-solid fa-network-wired"></i></div>
+                            <div class="card-info">
+                                <h3>Relay Server</h3>
+                                <p id="metrics-relay" class="value text-warning">Connecting...</p>
+                            </div>
+                        </div>
+                        <div class="card metric-card">
+                            <div class="card-icon"><i class="fa-solid fa-clock"></i></div>
+                            <div class="card-info">
+                                <h3>Last Ping</h3>
+                                <p id="metrics-ping" class="value">-- ms</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-layout mt-4">
+                        <div class="card col-12">
+                            <h2>Remote System Operations</h2>
+                            <p class="card-subtitle">Perform remote operations directly on the target machine.</p>
+                            <div class="quick-actions-grid">
+                                <button id="action-shutdown" class="btn btn-danger action-btn">
+                                    <i class="fa-solid fa-power-off"></i> Shutdown Remote PC
+                                </button>
+                                <button id="action-reboot" class="btn btn-warning action-btn">
+                                    <i class="fa-solid fa-rotate-right"></i> Reboot Remote PC
+                                </button>
+                                <button id="action-showui" class="btn btn-success action-btn">
+                                    <i class="fa-solid fa-window-restore"></i> Show Status Form
+                                </button>
+                                <button id="action-hideui" class="btn btn-secondary action-btn">
+                                    <i class="fa-solid fa-window-minimize"></i> Hide Status Form
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Remote Desktop Tab -->
+                <section id="tab-remote-desktop" class="tab-pane">
+                    <div class="card remote-screen-card">
+                        <div class="screen-controls">
+                            <div class="control-group">
+                                <button id="toggle-stream" class="btn btn-primary">
+                                    <i class="fa-solid fa-play"></i> Start Stream
+                                </button>
+                                <button id="toggle-audio" class="btn btn-secondary">
+                                    <i class="fa-solid fa-volume-xmark"></i> Listen Mic
+                                </button>
+                            </div>
+                            <div class="screen-status-info">
+                                <span class="badge badge-dark">Quality: 70%</span>
+                                <span id="fps-counter" class="badge badge-dark">FPS: 0</span>
+                            </div>
+                        </div>
+                        <div class="screen-canvas-container">
+                            <div id="screen-placeholder" class="screen-placeholder">
+                                <i class="fa-solid fa-desktop placeholder-icon"></i>
+                                <p>Stream Stopped. Click "Start Stream" to view screen.</p>
+                            </div>
+                            <img id="screen-view" class="screen-view hidden" alt="Remote Screen" draggable="false" />
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. File Manager Tab -->
+                <section id="tab-file-manager" class="tab-pane">
+                    <div class="card file-explorer-card">
+                        <div class="file-explorer-header">
+                            <div class="path-bar">
+                                <button id="file-up-btn" class="btn btn-icon"><i class="fa-solid fa-arrow-up"></i></button>
+                                <input type="text" id="file-current-path" value="C:\" />
+                                <button id="file-go-btn" class="btn btn-primary">Go</button>
+                            </div>
+                            <div class="file-actions">
+                                <label for="file-upload-input" class="btn btn-secondary file-upload-label">
+                                    <i class="fa-solid fa-cloud-upload-alt"></i> Upload File
+                                </label>
+                                <input type="file" id="file-upload-input" style="display: none;" />
+                            </div>
+                        </div>
+                        <div class="file-table-container">
+                            <table class="file-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Size</th>
+                                        <th class="text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="file-list-body">
+                                    <tr>
+                                        <td colspan="4" class="text-center">Connect to target to browse files.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Terminal Tab -->
+                <section id="tab-terminal" class="tab-pane">
+                    <div class="card terminal-card">
+                        <div class="terminal-header">
+                            <div class="terminal-tabs">
+                                <span class="terminal-tabactive"><i class="fa-solid fa-terminal"></i> Agent Console</span>
+                            </div>
+                            <button id="clear-terminal" class="btn btn-icon" title="Clear Console"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                        <div id="terminal-body" class="terminal-body">
+                            <div class="terminal-line system">[System] Welcome to the Remote Control Console.</div>
+                            <div class="terminal-line system">[System] Enter programs to launch or type commands directly.</div>
+                        </div>
+                        <div class="terminal-input-container">
+                            <span class="terminal-prompt">&gt;</span>
+                            <input type="text" id="terminal-input" placeholder="Type a command (e.g. launch calc.exe)..." autocomplete="off" />
+                            <button id="terminal-send" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. Settings Tab -->
+                <section id="tab-settings" class="tab-pane">
+                    <div class="card">
+                        <h2>Relay Settings</h2>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="settings-token">Authentication Token</label>
+                                <input type="password" id="settings-token" value="secret123" />
+                                <small class="form-help">Token must match the token configured in both the server.js and C# agent.</small>
+                            </div>
+                            <button id="settings-save" class="btn btn-primary">Apply Settings</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
